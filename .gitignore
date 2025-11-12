@@ -1,0 +1,26 @@
+# Ignore datasets
+data/*.csv
+data/*.xlsx
+data/*.json
+
+# Ignore temporary or generated files
+*.log
+*.tmp
+*.bak
+*.zip
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore virtual environments
+venv/
+.env/
