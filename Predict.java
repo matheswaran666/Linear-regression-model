@@ -15,10 +15,12 @@ public class Predict {
 
         LinearRegressionModel housePrice = new LinearRegressionModel("house price prediction", "house_price_prediction_dataset.csv");
         LinearRegressionModel medical = new LinearRegressionModel("Disease Severity prediction","medical_dataset.csv");
-        LinearRegressionModel sales = new LinearRegressionModel("sales prediction","sales_data.csv");
         LinearRegressionModel weather = new LinearRegressionModel( "weather prediction","weather_prediction_dataset.csv");
+        LinearRegressionModel salesPredction = new LinearRegressionModel("store_sales.csv", "store_sales.csv");
 
-        LinearRegressionModel[] models = {housePrice,medical,sales,weather};
+        
+
+        LinearRegressionModel[] models = {housePrice,medical,sales,weather,salesPredction};
 
         ArrayList<Double> x1 = new ArrayList<Double>(Arrays.asList(2497.42466554523,2.0,3.0,1.0,1982.0,3.0,5713.698516578241,644.0290956819343,0.0,0.0,3.0,14.064196852861619,87.9040523423472,9.019127177379058,7.190329068571428,108904.62213147723,85.16245307886444,96.68169697247995,43.86587719764406,-68.39438455085046,6.340682210211635,0.0,4.682175878573274,400.7842222751544,2.6186121695216045));
         System.out.println(housePrice.predictedData(x1));
