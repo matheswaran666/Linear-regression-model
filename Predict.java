@@ -18,7 +18,6 @@ public class Predict {
         LinearRegressionModel sales = new LinearRegressionModel("sales prediction","sales_data.csv");
         LinearRegressionModel weather = new LinearRegressionModel( "weather prediction","weather_prediction_dataset.csv");
 
-
         LinearRegressionModel[] models = {housePrice,medical,sales,weather};
 
         ArrayList<Double> x1 = new ArrayList<Double>(Arrays.asList(2497.42466554523,2.0,3.0,1.0,1982.0,3.0,5713.698516578241,644.0290956819343,0.0,0.0,3.0,14.064196852861619,87.9040523423472,9.019127177379058,7.190329068571428,108904.62213147723,85.16245307886444,96.68169697247995,43.86587719764406,-68.39438455085046,6.340682210211635,0.0,4.682175878573274,400.7842222751544,2.6186121695216045));
@@ -43,7 +42,7 @@ public class Predict {
             do{
                 System.out.print("Enter the option: ");
                 option = sc.nextInt();
-                if(option<1 || option>models.length){
+                if(option<1 || option>models.length+1){
                     System.out.println("\n----- Invalid option -----\n");
                 }
             }while(option<1 || option>models.length+1);

@@ -26,14 +26,15 @@ public class LinearRegressionModel {
     }
    
     void normalizationOfInput(ArrayList<Double> x,ArrayList<Double> mean,ArrayList<Double> std){
-        System.out.println("----- Normalizing the input data -----");
+        //----- Normalizing the input data -----//
+
         for(int i=0;i<x.size();i++){
             x.set(i,(x.get(i)-mean.get(i))/(std.get(i)+1e-8));
         }
     }
 
     double predict(ArrayList<Double> w,ArrayList<Double> x){
-        System.out.println("----- Calculate the output value -----");
+        //----- Calculate the output value -----//
         double pred = 0;
         for(int i=0;i<x.size();i++){
             pred+=w.get(i)*x.get(i);
@@ -54,7 +55,7 @@ public class LinearRegressionModel {
     }
 
     void readFile(ArrayList<Double> w,ArrayList<Double> mean,ArrayList<Double> std,String path){
-        System.out.println("----- get the weight,mean,standard deviation from the file -----");
+        //----- get the weight,mean,standard deviation from the file -----//
         try{
             FileReader file =  new FileReader("/home/mathes-zstk414/Documents/java/javaAssignments/javaMiniProject/models/"+path);
             BufferedReader bR = new BufferedReader(file);

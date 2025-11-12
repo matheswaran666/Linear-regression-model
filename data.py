@@ -1,72 +1,114 @@
 import numpy as np
 import pandas as pd
 
-# Parameters
-num_samples = 100_000
+# Reproducibility
 np.random.seed(42)
 
-data = {}
+# Number of samples
+num_samples = 10000   # you can change this to 1000, 5000, etc.
 
 # -----------------------------
-# 1. Location and time features
+# 1. Demographic and vital data
 # -----------------------------
-data['latitude'] = np.random.uniform(-90, 90, num_samples)
-data['longitude'] = np.random.uniform(-180, 180, num_samples)
-data['elevation_m'] = np.random.uniform(0, 4000, num_samples)
-data['month'] = np.random.randint(1, 13, num_samples)
-data['day_of_year'] = np.random.randint(1, 366, num_samples)
-data['hour'] = np.random.randint(0, 24, num_samples)
+age = np.random.randint(18, 91, num_samples)                # Age: 18–90
+sex = np.random.randint(0, 2, num_samples)                  # Sex: 0=Female, 1=Male
+cp = np.random.choice([0, 1, 2, 3], size=num_samples, p=[0.1, 0.3, 0.4, 0.2])
+trestbps = np.random.normal(130, 15, num_samples).astype(int)  # Resting BP
+chol = np.random.normal(245, 50, num_samples).astype(int)      # Cholesterol
+fbs = np.random.choice([0, 1], size=num_samples, p=[0.85, 0.15])  # Fasting sugar
+restecg = np.random.choice([0, 1, 2], size=num_samples, p=[0.6, 0.3, 0.1])
+thalach = np.random.normal(155, 25, num_samples).astype(int)  # Max heart rate
+thalach = np.clip(thalach, 80, 210)
+exang = np.random.choice([0, 1], size=num_samples, p=[0.7, 0.3])
+oldpeak = np.round(np.abs(np.random.normal(1.0, 1.0, num_samples)), 1)
+oldpeak = np.clip(oldpeak, 0, 6.2)
+slope = np.random.choice([0, 1, 2], size=num_samples, p=[0.3, 0.45, 0.25])
+ca = np.random.choice([0, 1, 2, 3], size=num_samples, p=[0.5, 0.3, 0.15, 0.05])
+thal = np.random.choice([1, 2, 3], size=num_samples, p=[0.5, 0.3, 0.2])
 
 # -----------------------------
-# 2. Atmospheric readings
+# 2. Additional lifestyle & health data
 # -----------------------------
-data['temperature_C'] = np.random.uniform(-15, 40, num_samples)
-data['humidity_%'] = np.random.uniform(10, 100, num_samples)
-data['pressure_hPa'] = np.random.uniform(950, 1050, num_samples)
-data['wind_speed_mps'] = np.random.uniform(0, 25, num_samples)
-data['wind_direction_deg'] = np.random.uniform(0, 360, num_samples)
-data['visibility_km'] = np.random.uniform(0, 20, num_samples)
+smoking = np.random.choice([0, 1], size=num_samples, p=[0.7, 0.3])
+alcohol = np.random.choice([0, 1], size=num_samples, p=[0.75, 0.25])
+diabetes = np.random.choice([0, 1], size=num_samples, p=[0.85, 0.15])
+bmi = np.round(np.random.normal(27, 4, num_samples), 1)
+bmi = np.clip(bmi, 16, 45)
+activity_level = np.random.choice([1, 2, 3], size=num_samples, p=[0.4, 0.4, 0.2])
+family_history = np.random.choice([0, 1], size=num_samples, p=[0.7, 0.3])
+stress_level = np.random.randint(1, 6, num_samples)  # 1 = low, 5 = high
+diet_quality = np.random.randint(1, 6, num_samples)  # 1 = poor, 5 = excellent
+sleep_hours = np.round(np.random.normal(7, 1.5, num_samples), 1)
+sleep_hours = np.clip(sleep_hours, 3, 10)
+
+# Blood pressure category: 0=Normal, 1=Prehypertension, 2=Hypertension
+bp_category = np.where(trestbps < 120, 0,
+                np.where(trestbps < 140, 1, 2))
 
 # -----------------------------
-# 3. Derived weather variables
+# 3. Compute heart attack risk
 # -----------------------------
-data['dew_point_C'] = data['temperature_C'] - (100 - data['humidity_%']) / 5
-data['cloud_cover_%'] = np.random.uniform(0, 100, num_samples)
-data['solar_radiation_Wm2'] = np.maximum(0, 1000 * np.sin(np.pi * data['hour'] / 24))
-data['precipitation_mm'] = np.random.exponential(1.5, num_samples) * (data['cloud_cover_%'] / 100)
-data['uv_index'] = np.clip((data['solar_radiation_Wm2'] / 1000) * 10, 0, 11)
+risk_score = (
+    (age - 40) * 0.04 +
+    (trestbps - 120) * 0.03 +
+    (chol - 200) * 0.02 +
+    (bmi - 25) * 0.04 +
+    fbs * 0.6 +
+    diabetes * 0.8 +
+    smoking * 1.2 +
+    alcohol * 0.5 +
+    exang * 0.8 +
+    (oldpeak * 0.7) +
+    (3 - slope) * 0.3 +
+    (ca * 0.6) +
+    (thal == 3) * 0.7 +
+    family_history * 1.0 +
+    stress_level * 0.3 -
+    (thalach - 150) * 0.02 -
+    (activity_level - 1) * 0.5 -
+    (diet_quality - 1) * 0.3 -
+    (sleep_hours - 7) * 0.4
+)
+
+# Sigmoid transformation
+prob = 1 / (1 + np.exp(-0.05 * (risk_score - 5)))
+
+# Binary target: 1 = Heart Disease, 0 = No Disease
+result = (np.random.rand(num_samples) < prob).astype(int)
 
 # -----------------------------
-# 4. Season encoding (binary)
+# 4. Combine into DataFrame (target first)
 # -----------------------------
-season_map = {
-    12: 0, 1: 0, 2: 0,   # Winter = 0
-    3: 1, 4: 1, 5: 1,    # Spring = 1
-    6: 2, 7: 2, 8: 2,    # Summer = 2
-    9: 3, 10: 3, 11: 3   # Autumn = 3
-}
-data['season'] = [season_map[m] for m in data['month']]
-
-# Convert season into four binary columns: Winter, Spring, Summer, Autumn
-df = pd.DataFrame(data)
-season_dummies = pd.get_dummies(df['season'], prefix='season', dtype=int)
-df = pd.concat([df.drop(columns=['season']), season_dummies], axis=1)
+df = pd.DataFrame({
+    "result": result,
+    "age": age,
+    "sex": sex,
+    "cp": cp,
+    "trestbps": trestbps,
+    "chol": chol,
+    "fbs": fbs,
+    "restecg": restecg,
+    "thalach": thalach,
+    "exang": exang,
+    "oldpeak": oldpeak,
+    "slope": slope,
+    "ca": ca,
+    "thal": thal,
+    "smoking": smoking,
+    "alcohol": alcohol,
+    "diabetes": diabetes,
+    "bmi": bmi,
+    "activity_level": activity_level,
+    "family_history": family_history,
+    "stress_level": stress_level,
+    "diet_quality": diet_quality,
+    "sleep_hours": sleep_hours,
+    "bp_category": bp_category
+})
 
 # -----------------------------
-# 5. Target variable (y): Next-day average temperature
+# 5. Save to CSV
 # -----------------------------
-weights = np.random.uniform(-2, 2, df.shape[1])
-X = df.values
-noise = np.random.randn(num_samples) * 2
-target = X.dot(weights[:X.shape[1]]) / 100 + noise
-
-# Insert target at the first column
-df.insert(0, 'next_day_avg_temp', target)
-
-# -----------------------------
-# 6. Save dataset
-# -----------------------------
-df.to_csv("weather_prediction_dataset_binary.csv", index=False)
-
-print(df.head())
-print(f"\n✅ Dataset generated successfully: {num_samples} samples × {df.shape[1]} columns (target first, all numeric).")
+df.to_csv("heart_attack_prediction_complete.csv", index=False)
+print("✅ heart_attack_prediction_complete.csv created successfully!")
+print(df.head(10))
