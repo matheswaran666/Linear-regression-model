@@ -1,4 +1,4 @@
-package javaMiniProject;
+
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -153,9 +153,6 @@ public class LinearRegression {
 
 
         System.out.println("----- (Gradient Descent) Finding the best weights for the data -----");
-        
-
-
         double learningRate = 0.0001;
         int count = 0;
         double  prevCost = Double.MAX_VALUE;

@@ -1,148 +1,75 @@
 import numpy as np
 import pandas as pd
 
-# -------------------------------
-# 1. Setup
-# -------------------------------
+# Set random seed for reproducibility
 np.random.seed(42)
-n = 5000  # number of data samples
 
-# -------------------------------
-# 2. Core Business Factors
-# -------------------------------
+# Number of samples (people)
+num_samples = 300000
 
-# Store attributes
-store_size = np.random.uniform(800, 8000, n)              # sq ft
-num_employees = np.random.randint(5, 150, n)
-city_tier = np.random.choice([1, 2, 3], n, p=[0.4, 0.4, 0.2])  # 1 = metro
-store_age = np.random.randint(1, 30, n)
-competition_distance = np.random.uniform(0.2, 25, n)      # km
-avg_footfall = np.random.randint(200, 15000, n)           # daily visitors
+# -------------------------
+# Generate Features
+# -------------------------
+age = np.random.randint(18, 80, num_samples)
+gender = np.random.choice([0, 1], num_samples)  # 0=Female, 1=Male
+bmi = np.round(np.random.normal(25, 4, num_samples), 1)
+smoking = np.random.choice([0, 1], num_samples, p=[0.7, 0.3])  # 1=smoker
+alcohol = np.random.choice([0, 1], num_samples, p=[0.6, 0.4])  # 1=drinker
+exercise_hours = np.round(np.random.normal(3, 1.5, num_samples), 1)  # per week
+exercise_hours = np.clip(exercise_hours, 0, 10)
+sugar_level = np.round(np.random.normal(100, 15, num_samples), 1)
+blood_pressure = np.round(np.random.normal(120, 15, num_samples), 1)
+cholesterol = np.round(np.random.normal(200, 30, num_samples), 1)
+stress_level = np.random.randint(1, 10, num_samples)
+sleep_hours = np.round(np.random.normal(7, 1.5, num_samples), 1)
+sleep_hours = np.clip(sleep_hours, 3, 10)
+income = np.random.randint(20000, 150000, num_samples)
 
-# Product and pricing
-avg_product_price = np.random.uniform(100, 2500, n)
-avg_discount = np.random.uniform(0, 40, n)
-competitor_price = avg_product_price + np.random.uniform(-100, 300, n)
-product_variety = np.random.randint(50, 3000, n)
-avg_profit_margin = np.random.uniform(5, 40, n)
-
-# Marketing & promotions — realistic advertising budgets (₹ or $ thousands)
-tv_spend = np.random.uniform(50_000, 500_000, n)
-radio_spend = np.random.uniform(10_000, 100_000, n)
-social_media_spend = np.random.uniform(20_000, 300_000, n)
-email_spend = np.random.uniform(5_000, 50_000, n)
-promo_emails_sent = np.random.randint(0, 50_000, n)
-discount_events = np.random.randint(0, 15, n)
-loyalty_members = np.random.randint(100, 10_000, n)
-coupons_used = np.random.randint(0, 3000, n)
-bogo_offer = np.random.choice([0, 1], n, p=[0.85, 0.15])
-
-# Economic & environmental context
-inflation_rate = np.random.uniform(3, 9, n)
-unemployment_rate = np.random.uniform(2, 10, n)
-fuel_price_index = np.random.uniform(80, 150, n)
-gdp_growth = np.random.uniform(2, 9, n)
-
-# Customer demographics
-avg_income = np.random.uniform(25_000, 250_000, n)
-median_age = np.random.uniform(20, 60, n)
-population_density = np.random.uniform(500, 50_000, n)
-family_size = np.random.uniform(2, 6, n)
-education_index = np.random.uniform(0, 1, n)
-
-# Seasonal/time-related
-month = np.random.randint(1, 13, n)
-day_of_week = np.random.randint(1, 8, n)
-is_weekend = np.where(day_of_week >= 6, 1, 0)
-holiday_season = np.where(np.isin(month, [11, 12]), 1, 0)
-festival_season = np.where(np.isin(month, [9, 10, 11, 12]), 1, 0)
-temperature = np.random.uniform(0, 40, n)
-rainfall = np.random.uniform(0, 300, n)
-
-# Customer satisfaction
-customer_loyalty_score = np.random.uniform(0, 10, n)
-customer_satisfaction = np.random.uniform(1, 5, n)
-return_rate = np.random.uniform(0, 0.15, n)
-
-# -------------------------------
-# 3. Target Variable: Sales ($ or ₹)
-# -------------------------------
-sales = (
-    0.05 * avg_footfall +
-    10 * store_size +
-    2000 * customer_loyalty_score +
-    0.0008 * social_media_spend +
-    0.0005 * tv_spend +
-    0.0007 * radio_spend +
-    0.0003 * email_spend +
-    0.02 * avg_income +
-    5000 * holiday_season +
-    7000 * festival_season +
-    4000 * is_weekend -
-    50 * avg_discount +
-    0.02 * promo_emails_sent +
-    0.1 * loyalty_members -
-    100 * inflation_rate -
-    50 * unemployment_rate +
-    np.random.normal(0, 2000, n)
+# -------------------------
+# Create a synthetic relationship for lifespan
+# -------------------------
+lifespan = (
+    80
+    - (gender * 2)                     # males slightly lower
+    - (bmi - 22) * 0.5
+    - smoking * np.random.uniform(3, 7, num_samples)
+    - alcohol * np.random.uniform(1, 3, num_samples)
+    + exercise_hours * np.random.uniform(0.5, 1.2, num_samples)
+    - (sugar_level - 100) * 0.03
+    - (blood_pressure - 120) * 0.02
+    - (cholesterol - 200) * 0.01
+    - stress_level * np.random.uniform(0.3, 0.7, num_samples)
+    + (sleep_hours - 7) * 2
+    + np.log(income / 20000) * 2
+    + np.random.normal(0, 3, num_samples)   # random noise
 )
 
-sales = np.maximum(sales, 0)  # avoid negatives
+# Lifespan bounds
+lifespan = np.clip(lifespan, 30, 100)
 
-# -------------------------------
-# 4. Create DataFrame
-# -------------------------------
-df = pd.DataFrame({
-    "Sales": sales,
-    "Store_Size": store_size,
-    "Num_Employees": num_employees,
-    "City_Tier": city_tier,
-    "Store_Age": store_age,
-    "Competition_Distance": competition_distance,
-    "Avg_Footfall": avg_footfall,
-    "Avg_Product_Price": avg_product_price,
-    "Avg_Discount": avg_discount,
-    "Competitor_Price": competitor_price,
-    "Product_Variety": product_variety,
-    "Avg_Profit_Margin": avg_profit_margin,
-    "TV_Spend": tv_spend,
-    "Radio_Spend": radio_spend,
-    "Social_Media_Spend": social_media_spend,
-    "Email_Spend": email_spend,
-    "Promo_Emails_Sent": promo_emails_sent,
-    "Discount_Events": discount_events,
-    "Loyalty_Members": loyalty_members,
-    "Coupons_Used": coupons_used,
-    "BOGO_Offer": bogo_offer,
-    "Inflation_Rate": inflation_rate,
-    "Unemployment_Rate": unemployment_rate,
-    "Fuel_Price_Index": fuel_price_index,
-    "GDP_Growth": gdp_growth,
-    "Avg_Income": avg_income,
-    "Median_Age": median_age,
-    "Population_Density": population_density,
-    "Family_Size": family_size,
-    "Education_Index": education_index,
-    "Month": month,
-    "Day_Of_Week": day_of_week,
-    "Is_Weekend": is_weekend,
-    "Holiday_Season": holiday_season,
-    "Festival_Season": festival_season,
-    "Temperature": temperature,
-    "Rainfall": rainfall,
-    "Customer_Loyalty_Score": customer_loyalty_score,
-    "Customer_Satisfaction": customer_satisfaction,
-    "Return_Rate": return_rate
+# -------------------------
+# Combine into a DataFrame
+# -------------------------
+data = pd.DataFrame({
+    'lifespan': np.round(lifespan, 1),
+    'age': age,
+    'gender': gender,
+    'bmi': bmi,
+    'smoking': smoking,
+    'alcohol': alcohol,
+    'exercise_hours': exercise_hours,
+    'sugar_level': sugar_level,
+    'blood_pressure': blood_pressure,
+    'cholesterol': cholesterol,
+    'stress_level': stress_level,
+    'sleep_hours': sleep_hours,
+    'income': income
 })
 
-# -------------------------------
-# 5. Save to CSV
-# -------------------------------
-csv_path = "store_sales.csv"
-df.to_csv(csv_path, index=False)
+# -------------------------
+# Save to CSV
+# -------------------------
+data.to_csv("data/lifespan_prediction_dataset.csv", index=False)
 
-print(f"✅ Realistic store sales dataset created: {csv_path}")
-print(f"Rows: {df.shape[0]} | Columns: {df.shape[1]}")
-print("\n💰 Avg Sales:", round(df['Sales'].mean(), 2))
-print("📊 Sample rows:")
-print(df.head())
+print("✅ Dataset created and saved as 'lifespan_prediction_dataset.csv'")
+print(data.head())
