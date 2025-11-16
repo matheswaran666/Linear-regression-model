@@ -1,5 +1,3 @@
-
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -7,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
 
 public class LinearRegression {
     ArrayList<ArrayList<Double>> x = new ArrayList<>();
@@ -38,7 +37,7 @@ public class LinearRegression {
         System.out.println("----- Get the data from the file -----");
         BufferedReader br = null;
         try{
-             br = new BufferedReader(new FileReader("/home/mathes-zstk414/Documents/java/javaAssignments/javaMiniProject/data/"+fileName));
+             br = new BufferedReader(new FileReader("/data/"+fileName));
             String line;
             line = br.readLine(); 
             String[] arr;
@@ -118,7 +117,7 @@ public class LinearRegression {
 
         BufferedWriter bw = null;
         try{
-             bw = new BufferedWriter(new FileWriter("/home/mathes-zstk414/Documents/java/javaAssignments/javaMiniProject/models/"+fileName));
+             bw = new BufferedWriter(new FileWriter("/models/"+fileName));
              StringBuilder str= new StringBuilder();
             for(int i=0;i<w.size();i++){
                 str.append(w.get(i)+",");
