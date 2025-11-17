@@ -132,8 +132,6 @@ public class LinearRegressionModel {
 
 }
 
-
-
 class ValueAndIndex{
     Double value;
     int index;

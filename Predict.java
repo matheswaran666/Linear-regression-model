@@ -21,13 +21,7 @@ public class Predict {
 
         ArrayList<LinearRegressionModel> models =  new ArrayList<>();
 
-        // LinearRegressionModel housePrice = new LinearRegressionModel("house price prediction", "house_price_prediction_dataset.csv");
-        // LinearRegressionModel medical = new LinearRegressionModel("Disease Severity prediction","medical_dataset.csv");
-        // LinearRegressionModel weather = new LinearRegressionModel("weather prediction","weather_prediction_dataset.csv");
-        // LinearRegressionModel salesPrediction = new LinearRegressionModel("Sales Prediction", "store_sales.csv");
-        // LinearRegressionModel weatherPrediction = new LinearRegressionModel("South TamilNadu weather prediction", "south_tamilnadu_weather_prediction_dataset.csv");
-        // LinearRegressionModel lifespanPrediction = new LinearRegressionModel("lifespan prediction", "lifespan_prediction_dataset.csv");
-        
+
         predict.addModels(models,"house price prediction","house_price_prediction_dataset.csv");
         predict.addModels(models,"weather prediction","weather_prediction_dataset.csv");
         predict.addModels(models,"Sales Prediction","store_sales.csv");
