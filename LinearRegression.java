@@ -78,8 +78,7 @@ public class LinearRegression {
     }
     
     double[] standardDeviation(double[] mean) {
-
-        
+         
         System.out.println("----- Finding the Standard deviation of the data -----");
         int numFeatures = x.get(0).size();
         double[] std = new double[numFeatures];
